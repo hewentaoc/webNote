@@ -40,3 +40,16 @@
 > 
 >
 
+### 3. **mongo删除数据后内存不会释放**？
+
+> **解决方式：**通过该db操作后可以释放删除操作后的空间
+
+```js
+db.getCollectionNames().forEach(function (collectionName) {
+    print('Compacting: ' + collectionName);
+    db.runCommand({ compact: collectionName });
+});
+```
+
+
+
