@@ -358,7 +358,7 @@ React会对异步的setState进行优化，将多次setState进行合并（将�
 
 ## 旧版生命周期
 
-React < 16.0.0![assets/oldlife.png](/home/hwt/桌面/Note/assets/oldlife.png)
+React < 16.0.0![](assets/oldlife.png)
 
 
 
@@ -397,7 +397,7 @@ React >= 16.0.0
 
 React官方认为，某个数据的来源必须是单一的
 
-![assets/newlife.png](/home/hwt/桌面/Note/assets/newlife.png)
+![](assets/newlife.png)
 
 1. getDerivedStateFromProps
    1. 通过参数可以获取新的属性和状态
