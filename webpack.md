@@ -1537,6 +1537,142 @@ module.exports = {
 默认情况下，每个chunk对应一个css文件
 
 
+# 四．js兼容性
 
+# 1. babel初探
+
+## (1) 什么是babel
+
+babel的出现，就是用于解决这样的问题，它是一个`编译器`，可以把不同标准书写的语言，编译为统一的、能被各种浏览器识别的语言
+
+![](assets/2020-02-07-10-25-56.png)
+
+由于语言的转换工作灵活多样，babel的做法和postcss、webpack差不多，它本身仅提供一些分析功能，真正的转换需要依托于插件完成
+
+![](assets/2020-02-07-10-27-30.png)
+
+## (2) babel的安装
+
+babel可以和构建工具联合使用，也可以独立使用
+
+如果要独立的使用babel，需要安装下面两个库：
+
+- @babel/core：babel核心库，提供了编译所需的所有api
+- @babel/cli：提供一个命令行工具，调用核心库的api完成编译
+
+```shell
+npm i -D @babel/core @babel/cli
+```
+
+## (3) babel的使用
+
+@babel/cli的使用极其简单
+
+它提供了一个命令`babel`
+
+```shell
+# 按文件编译
+babel 要编译的文件 -o 编辑结果文件
+
+# 按目录编译
+babel 要编译的整个目录 -d 编译结果放置的目录
+```
+
+## babel的配置
+
+可以看到，babel本身没有做任何事情，真正的编译要依托于**babel插件**和**babel预设**来完成
+
+> babel预设和postcss预设含义一样，是多个插件的集合体，用于解决一系列常见的兼容问题
+
+如何告诉babel要使用哪些插件或预设呢？需要通过一个配置文件`.babelrc`
+
+```json
+{
+    "presets": [],
+    "plugins": []
+}
+```
+
+# 2. babel进阶
+
+## (1) babel预设
+babel有多种预设，最常见的预设是`@babel/preset-env`
+
+`@babel/preset-env`可以让你使用最新的JS语法，而无需针对每种语法转换设置具体的插件
+
+**配置**
+
+```json
+{
+    "presets": [
+        "@babel/preset-env"
+    ]
+}
+```
+
+**兼容的浏览器**
+
+`@babel/preset-env`需要根据兼容的浏览器范围来确定如何编译，和postcss一样，可以使用文件`.browserslistrc`来描述浏览器的兼容范围
+
+```
+last 3 version
+> 1%
+not ie <= 8
+```
+
+**自身的配置**
+
+和`postcss-preset-env`一样，`@babel/preset-env`自身也有一些配置
+
+> 具体的配置见：https://www.babeljs.cn/docs/babel-preset-env#options
+
+配置方式是：
+
+```json
+{
+    "presets": [
+        ["@babel/preset-env", {
+            "配置项1": "配置值",
+            "配置项2": "配置值",
+            "配置项3": "配置值"
+        }]
+    ]
+}
+```
+
+其中一个比较常见的配置项是`usebuiltins`，该配置的默认值是false
+
+它有什么用呢？由于该预设仅转换新的语法，并不对新的API进行任何处理
+
+例如：
+
+```js
+new Promise(resolve => {
+    resolve()
+})
+```
+
+转换的结果为
+
+```js
+new Promise(function (resolve) {
+  resolve();
+});
+```
+
+如果遇到没有Promise构造函数的旧版本浏览器，该代码就会报错
+
+而配置`usebuiltins`可以在编译结果中注入这些新的API，它的值默认为`false`，表示不注入任何新的API，可以将其设置为`usage`，表示根据API的使用情况，按需导入API
+
+```json
+{
+    "presets": [
+        ["@babel/preset-env", {
+            "useBuiltIns": "usage",
+            "corejs": 3
+        }]
+    ]
+}
+```
 
 
