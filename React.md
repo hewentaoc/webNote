@@ -1,6 +1,6 @@
 [TOC]
 
-# 一．Lesson1
+# 一．Lesson1－构建React
 
 ## 1. 初识React
 
@@ -122,7 +122,7 @@ JS的扩展语法，需要使用babel进行转义。
 
 
 
-# 二．Lesson2
+# 二．Lesson2－React基础
 
 ## 1. JSX
 
@@ -409,6 +409,55 @@ React官方认为，某个数据的来源必须是单一的
    2. 在该函数中，通常用于实现一些附加的dom操作
    3. 该函数的返回值，会作为componentDidUpdate的第三个参数
 
+## 7.  传递元素内容给子组件
+
+**如果给自定义组件传递元素内容，则React会将元素内容作为children属性传递过去**
+内置组件：div、h1、p
+
+```html
+<div>
+　 wthe
+</div>
+```
+
+- <Comp html={}></Comp> 这种写法
+
+===
+```jsx
+<Comp> //会在子组件属性props中创建children来存储h1的react对象
+    <h1>122</h1>
+</Comp>
+```
+## ８.  表单
+
+**受控组件和非受控组件**
+
+受控组件：组件的使用者，有能力完全控制该组件的行为和内容。通常情况下，受控组件往往没有自身的状态，其内容完全收到属性的控制。
+
+非受控组件：组件的使用者，没有能力控制该组件的行为和内容，组件的行为和内容完全自行控-- 制。
+-  **想要变为受控组件,需要使用onChange函数改变value值**
+
+**表单组件，默认情况下是非受控组件，一旦设置了表单组件的value属性，则其变为受控组件**
+**(单选和多选框需要设置checked)**
+
+<input type='text' value=123 /> 
+- 如果设置value的值,则其为受控组件,此时input中的值为只读的值
+
+<input type='text' defaultValue=123 /> 
+- 此时input中的值仅为默认值,可以进行更改,此时它又变为非受控组件
+
+> 想要变为受控组件,需要使用onChange函数改变value值
+
+<input type='text' value={this.state.val} onChange={()=>{
+    this.setState({//通过改变状态,使组件重新渲染,从而改变input值
+
+    })
+}}>
+
+
+# 三．Lesson３－React进阶
+
+## 1. 默认属性和类型检查
 
 
 
