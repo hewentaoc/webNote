@@ -459,8 +459,149 @@ React官方认为，某个数据的来源必须是单一的
 
 ## 1. 默认属性和类型检查
 
+### (1)  属性默认值
+
+通过一个静态属性```defaultProps```告知react属性默认值
+
+- 函数静态属性
+   Func.defaultProps = {
+      a:1,
+      b:2
+   }
+- 类的静态属性
+  static defaultProps = {
+      a:1,
+      b:2
+  }
 
 
+### (2) 属性类型检查
+
+**使用库**：```prop-types```
+
+对组件使用静态属性```propTypes```告知react如何检查属性
+
+static propTypes = {
+   a:PropTypes.number.isRequired, **代表a属性是必填的并且必须是数字类型**
+}
+> 
+## 先进行属性混合,再进行属性类型检查
+
+```js
+PropTypes.any：//任意类型
+PropTypes.array：//数组类型
+PropTypes.bool：//布尔类型
+PropTypes.func：//函数类型
+PropTypes.number：//数字类型
+PropTypes.object：//对象类型
+PropTypes.string：//字符串类型
+PropTypes.symbol：//符号类型
+
+PropTypes.node：//任何可以被渲染的内容，字符串、数字、React元素 <Comp />
+PropTypes.element：//react元素  <Comp />
+PropTypes.elementType：//react元素类型   {Comp}
+PropTypes.instanceOf(构造函数)：//必须是指定构造函数的实例
+PropTypes.oneOf([xxx, xxx])：//枚举
+PropTypes.oneOfType([xxx, xxx]);  //属性类型必须是数组中的其中一个
+PropTypes.arrayOf(PropTypes.XXX)：//必须是某一类型组成的数组,可以传递一个空数组
+PropTypes.objectOf(PropTypes.XXX)：//对象由某一类型的值组成
+PropTypes.shape(对象): //属性必须是对象，并且满足指定的对象要求
+PropTypes.exact({...})：//对象必须精确匹配传递的数据
+
+//自定义属性检查，如果有错误，返回错误对象即可
+属性: function(props, propName, componentName) {
+   //...
+}
+
+propTypes.number.isRequired //代表该属性为必填的
+```
+
+## 2. HOC － 高阶组件
+
+HOF：Higher-Order Function, 高阶函数，以函数作为参数，并返回一个函数
+HOC: Higher-Order Component, 高阶组件，以组件作为参数，并返回一个组件
+
+通常，可以利用HOC实现横切关注点。
+
+> 举例：20个组件，每个组件在创建组件和销毁组件时，需要作日志记录
+> 20个组件，它们需要显示一些内容，得到的数据结构完全一致
+
+```js
+    export default function (comp) {
+        return class withTest extends React.Component {
+
+        }
+    }
+    
+    export default function withLogin(Comp) {
+       return function loginWrapper(props) {
+            if(props.login) {
+                return <Comp {...props}></Comp>
+            }else{
+                return null;
+            }
+       }
+    }
+
+```
+
+**注意**
+
+1. 不要在render中使用高阶组件 let comp = withTest(A); 
+**定义组件不能写在render函数和函数组件中,因为每次组件重新渲染都会重新创建新的实例,影响性能**
+2. 不要在高阶组件内部更改传入的组件 
+**可能导致传入组件内部的功能被修改,使组件书写起来压力很大**
+
+## ３. ref －使用自定义组件中的某个方法
+
+reference: 引用
+
+场景：希望直接使用dom元素中的某个方法，或者希望直接使用自定义组件中的某个方法
+
+1. ref作用于内置的html组件，得到的将是真实的dom对象<input type='text' ref='oinp'>
+2. ref作用于类组件，得到的将是类的实例<Comp ref='Comp' />
+3. ref不能作用于函数组件
+
+ref不再推荐使用字符串赋值，字符串赋值的方式将来可能会被移出
+
+目前，ref推荐使用对象或者是函数
+
+**对象**
+
+- 通过 React.createRef 函数创建
+- 也可以直接
+this.txt = {
+       current:null,
+   }
+> 在执行render函数的时候给对象重新赋值 
+> <input type='text' ref={this.txt}>
+
+- this.txt.current 得到Dom元素
+
+**函数**
+
+- <input type='text' ref={(el)=>{
+   this.txt = el;
+}}>
+
+- this.txt 得到Dom元素
+
+
+函数的调用时间：
+
+1. componentDidMount的时候会调用该函数
+   1. 在componentDidMount事件中可以使用ref
+2. 如果ref的值发生了变动（旧的函数被新的函数替代），分别调用旧的函数以及新的函数，时间点出现在componentDidUpdate之前
+   1. 旧的函数被调用时，传递null
+   2. 新的函数被调用时，传递对象
+3. 如果ref所在的组件被卸载，会调用函数
+
+**谨慎使用ref**
+
+能够使用属性和状态进行控制，就不要使用ref。
+
+1. 调用真实的DOM对象中的方法
+2. 某个时候需要调用类组件的方法
 
 
 
