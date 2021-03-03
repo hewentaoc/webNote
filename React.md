@@ -1853,7 +1853,7 @@ Reducer是用于改变数据的函数
 2. 为了方便管理，通常会将reducer放到单独的文件中。
 3. reducer被调用的时机
    1. 通过store.dispatch，分发了一个action，此时，会调用reducer
-   2. 当创建一个store的时候，会调用一次reducer
+   2. **当创建一个store的时候，会调用一次reducer**
       1. 可以利用这一点，**用reducer初始化状态**
       2. 创建仓库时，不传递任何默认状态
       3. 将reducer的参数state设置一个默认值
@@ -1883,3 +1883,8 @@ Store：用于保存数据
 - getState：得到仓库中当前的状态
 - replaceReducer：替换掉当前的reducer
 - subscribe：注册一个监听器，监听器是一个无参函数，当分发一个action之后，会运行注册的监听器。该函数会返回一个函数，用于取消监听
+
+
+
+## 6. 源码理解
+

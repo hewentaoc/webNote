@@ -22,3 +22,44 @@
 
   ![](assets/2021-03-01 15-37-31 的屏幕截图.png)
 
+### 2. 谈谈ES6的Symbol
+
+> 特点: 唯一,可作为对象的属性,有静态属性**Symbol.iterator**
+
+```js
+1.
+   如果Symbol中传递的参数是一个对象
+   那么就会调用toString()方法,返回的值放在Symbol中
+let os = Symbol({
+    name:'hwt',
+    toString:function(){
+        return 'duyi';
+    }
+})
+
+2. Symbol具有唯一性 Symbol('a') != Symbol('a') 
+
+3. Symbol作为对象的属性
+    let os = Symbol('a');
+    let name = 'name';
+    let obj = {
+         [os] :'hwt',
+         [name]:'ww',
+    }   
+    取到属性值: obj[os]
+
+4.Symbol上的静态属性 --》 Symbol.interator
+
+ arr  Set  Map  " " arguments nodelist 
+ 每一个数据原型上都有Symbol(Symbol.iterator)属性
+ 并且属性都 == iterator函数
+
+ console.log(Symbol.iterator,Symbol('Symbol.interator'));
+```
+
+
+
+
+
+
+
