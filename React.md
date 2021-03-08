@@ -990,7 +990,7 @@ ReactDOM.render(app, document.getElementById('root'));
 1. 更新虚拟DOM树
 2. 完成真实的DOM更新
 3. 依次调用执行队列中的componentDidMount
-4. 依次调用执行队列中的getSnapshotBeforeUpdate
+4. 依次调用执行队列中的getSnapshotBeforegUpdate
 5. 依次调用执行队列中的componentDidUpdate
 
 
@@ -1887,4 +1887,167 @@ Store：用于保存数据
 
 
 ## 6. 源码理解
+
+- **createStore.js**
+
+```js
+
+function isPlainObject(obj){
+    // if/
+    if(typeof obj != 'object'){
+        return false;
+    }
+    return Object.getPrototypeOf(obj) === Object.prototype;
+}
+
+/**
+ * 
+ * @param {*} reducer 
+ * @param {*} state 
+ */
+export default function createStore(reducer,state){
+    if(typeof reducer != 'function'){
+        throw new Error('reducer muse be a function!')
+    }
+    let storeState = state;
+    let funcStore = [];
+    storeState = reducer(storeState,{
+
+    });
+    
+    let dispatch = function(actions){
+        if(!isPlainObject(actions)){
+            throw new Error('actions must be a plain object');
+        }
+        storeState = reducer(storeState,actions);
+        funcStore.forEach((func)=>{
+            func();
+        })
+        return actions;
+    }   
+
+    let getState = function(){
+        return storeState;
+    } 
+    
+    let subscribe = function(func){
+        if(typeof func == 'function'){
+           funcStore.push(func);
+        }else {
+            throw new Error("func must be a function");
+        }
+        return function(){
+            let index = funcStore.indexOf(func);
+            if(index > 0){
+                funcStore.splice(index,1);  
+            }else{
+                return ;
+            }
+        }
+    }
+    return {
+        dispatch,
+        getState,
+        subscribe,
+    }
+}
+```
+
+- **bindActionCreators**
+
+```js
+
+
+export default function bindActionCreators(actionCreator,dispatch){
+    if(typeof actionCreator == 'object'){
+        let res = {};
+        for(let prop in actionCreator){
+            typeof actionCreator[prop] == 'function' && (res[prop] = function(){
+                dispatch(actionCreator[prop](...arguments))
+            })
+        }
+        return res;
+    }
+    if(typeof actionCreator == 'function'){
+        return function(){
+            
+        }
+    }
+    throw new Error('actionCreator must be object or function!');
+}
+
+```
+
+- **combineReducers**
+
+```js
+export default function combineReducers(funcObj){
+    if(typeof funcObj != 'object'){
+        throw new Error('funcObj must be a function');
+    }
+    return function(state = {},action){
+        let newState = {};
+        for(let prop in funcObj){
+            typeof funcObj[prop] == 'function' &&
+            (newState[prop] = funcObj[prop](state[prop],action))
+        }
+        return newState;
+    }
+}
+
+```
+
+## 7. Redux中间件（Middleware）
+
+中间件：类似于插件，可以在不影响原本功能、并且不改动原本代码的基础上，对其功能进行增强。**在Redux中，中间件主要用于增强dispatch函数。**
+
+**实现Redux中间件的基本原理，是更改仓库中的dispatch函数。**
+
+**Redux中间件书写：**
+
+- 中间件本身是一个函数，该函数接收一个store参数，表示创建的仓库，该仓库并非一个完整的仓库对象，仅包含getState，dispatch。该函数运行的时间，是在仓库创建之后运行。
+  - 由于创建仓库后需要自动运行设置的中间件函数，因此，需要在创建仓库时，告诉仓库有哪些中间件
+  - 需要调用applyMiddleware函数，将函数的返回结果作为createStore的第二或第三个参数。
+- 中间件函数必须返回一个dispatch创建函数
+
+
+- applyMiddleware函数，用于记录有哪些中间件，它会返回一个函数
+  - 该函数用于记录创建仓库的方法，然后又返回一个函数
+
+
+
+- 手**写applyMiddleware**
+
+middleware的本质，是一个调用后可以得到dispatch创建函数的函数
+
+compose：函数组合，将一个数组中的函数进行组合，形成一个新的函数，该函数调用时，实际上是反向调用之前组合的函数
+
+
+
+# 八．Redux中间件
+
+## 1.  redux-logger
+
+> 用于日志记录的中间件
+>
+> 注: 一般放在appMiddleWare()最后一项
+
+## 2. 利用中间件进行副作用处理
+
+- **redux-thunk**
+
+​      thunk允许action是一个带有副作用的函数，当action是一个函数被分发时，thunk会阻止action继续向后移交。
+
+​      thunk会向函数中传递三个参数：
+- dispatch：来自于store.dispatch
+- getState：来自于store.getState
+- extra：来自于用户设置的额外参数
+- **redux-promise**
+- **redux-saga**
+
+
+
+
+
+
 
