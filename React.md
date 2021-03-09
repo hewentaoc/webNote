@@ -1891,7 +1891,6 @@ Store：用于保存数据
 - **createStore.js**
 
 ```js
-
 function isPlainObject(obj){
     // if/
     if(typeof obj != 'object'){
@@ -1905,9 +1904,17 @@ function isPlainObject(obj){
  * @param {*} reducer 
  * @param {*} state 
  */
-export default function createStore(reducer,state){
+export default function createStore(reducer,state,midware){
     if(typeof reducer != 'function'){
         throw new Error('reducer muse be a function!')
+    } 
+    if(typeof state == 'function') {
+        midware = state;
+        state = undefined;
+    }
+
+    if(typeof midware == 'function') {
+        return midware(createStore)(reducer, state)
     }
     let storeState = state;
     let funcStore = [];
@@ -2016,7 +2023,36 @@ export default function combineReducers(funcObj){
 
 
 
-- 手**写applyMiddleware**
+- **手写applyMiddleware**
+
+```js
+ const store = createStore(reducer,applyMiddleware(logMiddleWare));
+export default function applyMiddleware(...middleWareArgs){
+    return function(createStore){
+        return function(reducer,defaultState){
+            let returnStore = createStore(reducer,defaultState)
+            let next = returnStore.dispatch;
+            let store = {
+                dispatch:returnStore.dispatch,
+                getState:returnStore.getState
+            }
+            for(let i = middleWareArgs.length -1 ; i >= 0 ; i--){
+                if(typeof middleWareArgs[i] == 'function'){
+                    next = middleWareArgs[i](store)(next);
+                }else{
+                    throw new Error('middleWare must be a function!')
+                }
+            }
+            return {
+                ...returnStore,
+                dispatch:next
+            };  
+        }
+    }
+}
+```
+
+
 
 middleware的本质，是一个调用后可以得到dispatch创建函数的函数
 
@@ -2024,7 +2060,11 @@ compose：函数组合，将一个数组中的函数进行组合，形成一个�
 
 
 
+
+
 # 八．Redux中间件
+
+在react中设置代理 **"proxy": "http://api.duyiedu.com"**
 
 ## 1.  redux-logger
 
@@ -2032,18 +2072,163 @@ compose：函数组合，将一个数组中的函数进行组合，形成一个�
 >
 > 注: 一般放在appMiddleWare()最后一项
 
+- **日志中间件**
+
+```js
+export function logMiddleWare(store){
+    return function(next){
+        return function(action){
+            // console.log(next)
+            console.log('log1',store.getState(),action)
+            next(action);
+            console.log('log2',store.getState(),action)
+            console.log(' ')
+        }
+    }
+}
+```
+
+
+
 ## 2. 利用中间件进行副作用处理
 
 - **redux-thunk**
 
-​      thunk允许action是一个带有副作用的函数，当action是一个函数被分发时，thunk会阻止action继续向后移交。
+ thunk允许action是一个带有副作用的函数，当action是一个函数被分发时，thunk会阻止action继续向后移交。
 
-​      thunk会向函数中传递三个参数：
+ thunk会向函数中传递三个参数：
 - dispatch：来自于store.dispatch
 - getState：来自于store.getState
 - extra：来自于用户设置的额外参数
+
+```js
+export default function thunk(store){
+    return function(next){
+        return function(action){
+            if(typeof action == 'function') {
+                action(store.dispatch,store.getState)
+            }else{
+                next(action);
+            }   
+        }
+    }
+}
+```
+
 - **redux-promise**
-- **redux-saga**
+
+  
+## 3. 利用**redux-saga**中间件进行副作用处理
+
+> 中文文档地址：https://redux-saga-in-chinese.js.org/
+
+- 纯净
+- 强大
+- 灵活
+
+![](assets/2019-08-27-09-35-12.png)
+
+在saga任务中，如果yield了一个普通数据，saga不作任何处理，仅仅将数据传递给yield表达式（把得到的数据放到next的参数中），因此，在saga中，yield一个普通数据没什么意义。
+
+saga需要你在yield后面放上一些合适的saga指令（saga effects），如果放的是指令，saga中间件会根据不同的指令进行特殊处理，以控制整个任务的流程。
+
+每个指令本质上就是一个函数，该函数调用后，会返回一个指令对象，saga会接收到该指令对象，进行各种处理
+
+**一旦saga任务完成（生成器函数运行完成），则saga中间件一定结束**
+
+- take指令：【阻塞】监听某个action，如果action发生了，则会进行下一步处理，take指令仅监听一次。yield得到的是完整的action对象
+- all指令：【阻塞】该函数传入一个数组，数组中放入生成器，saga会等待所有的生成器全部完成后才会进一步处理
+- takeEvery指令：不断的监听某个action，当某个action到达之后，运行一个函数。takeEvery永远不会结束当前的生成器
+- delay指令：【阻塞】阻塞指定的毫秒数
+- put指令：用于重新触发action，相当于dispatch一个action
+- call指令：【可能阻塞】用于副作用（通常是异步）函数调用
+- apply指令：【可能阻塞】用于副作用（通常是异步）函数调用
+- select指令：用于得到当前仓库中的数据
+- cps指令：【可能阻塞】用于调用那些传统的回调方式的异步函数
+```js
+
+import createSagaMiddleWare from 'redux-saga' //引入创建saga中间件的函数
+let sagaMid = createSagaMiddleWare();//得到saga中间件
+sagaMid.run(task)//启动saga任务
+
+//take
+export default function *task(){
+    while (true) {
+      let value = yield take(INCREASE)
+      console.log('999',value)
+    }
+ }
+//increaseTask是生成器创建函数，此时需要传递生成器
+export default function *task(){
+      let value = yield all([increaseTask(),studentTask()])
+      console.log('执行完毕',value)
+ }
+
+//监听Action的变化
+export default function* studentTask(){
+    yield takeEvery(DECREASE,listenAction);
+    console.log(67890,'listenAction')
+}
+
+function* listenAction(){
+    yield delay(2000)　//延迟执行
+    console.log('我被触发了')
+}
+
+export default function* decrease(){
+    yield takeEvery(types.asyncDecrease,listenAction);
+    console.log(46,'decrease')
+}
+
+function* listenAction(){
+    yield delay(2000)
+    yield put(getDecreaseAction())//用于重新触发action
+    console.log('我被触发了')
+}
+export default function* studentTask(){
+    yield takeEvery(GETCUSER,listenAction);
+    console.log(555,'listenUserAction')
+}
+function* listenAction(){
+   let value = yield getAllStudents();//得到异步数据
+   console.log(value)
+}
+
+function* listenAction(){
+    let value = yield call(getAllStudents,1,2,3);//使用call进行异步数据请求，后面是参数
+    console.log(333,value)
+ }
+function* listenAction(){
+    let value = yield apply(null,getAllStudents,[1,2,3]);//使用apply进行异步数据请求，数组是参数
+    console.log(777,value)
+}
+/**
+ * 回调模式的异步
+ * @param {*} callback 
+ */
+function mockStudents(condition, callback) {
+    console.log("mockStudents", condition);
+    setTimeout(() => {
+        if (Math.random() > 0.5) {
+            //nodejs风格
+            callback(null, {
+                cont: 78,
+                datas: [
+                    { id: 1, name: "abc" },
+                    { id: 2, name: "bcd" }
+                ]
+            })
+        }
+        else {
+            callback(new Error("出错了！！！1"), null);
+        }
+    }, 1000);
+}
+const resp = yield cps(mockStudents, condition)//调用那些传统的回调方式的异步函数
+
+```
+
+
 
 
 
