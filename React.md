@@ -2228,8 +2228,141 @@ const resp = yield cps(mockStudents, condition)//调用那些传统的回调方�
 
 ```
 
+## 4. 利用**redux-saga**中间件进行副作用处理－进阶
+
+- fork：用于开启一个新的任务，该任务不会阻塞，该函数需要传递一个生成器函数，fork返回了一个对象，类型为Task
+- cancel：用于取消一个或多个任务，实际上，取消的实现原理，是利用generator.return。cancel可以不传递参数，如果不传递参数，则取消当前任务线。
+- takeLastest：功能和takeEvery一致，只不过，会自动取消掉之前开启的任务
+- cancelled：判断当前任务线是否被取消掉了
+- race：【阻塞】竞赛，可以传递多个指令，当其中任何一个指令结束后，会直接结束，与Promise.race类似。返回的结果，是最先完成的指令结果。并且，该函数会自动取消其他的任务
+
+```js
+//1
+var taskStore;
+function* task1(){
+  while (true) {
+    yield take(types.asyncIncrease);
+    if(taskStore){
+        yield cancel(taskStore)
+    }
+    taskStore = yield　fork(function *(){
+        while (true) {
+            yield delay(2000);
+            yield put(getIncreaseAction());
+            console.log('task一次结束')
+        }
+    })
+    console.log('我被执行吗')
+  }
+}
+
+export default function *task(){
+    yield fork(task1)
+    console.log('没有阻塞吗')
+}
+//2
+/**
+ * 自动增加和停止的流程控制
+ * 流程：自动增加 -> 停止 -> 自动增加 -> 停止
+ */
+function* autoTask() {
+    while (true) {
+        yield take(actionTypes.autoIncrease); //只监听autoIncrease
+        const task = yield fork(function* () {
+            try {
+                while (true) {
+                    yield delay(2000);
+                    yield put(increase());
+                }
+            }
+            finally {
+                if (yield cancelled()) {
+                    console.log("自动增加任务被取消掉了！！！")
+                }
+            }
+        })
+        yield take(actionTypes.stopAutoIncrease); //转而监听stopAutoIncrease
+        yield cancel(task);
+    }
+}
+
+export default function* () {
+    yield fork(autoTask);
+    console.log("正在监听autoIncrease")
+}
+
+//3. 
+function* stopTask() {
+    if (task) {
+        yield cancel(task);
+    }
+}
+
+let task;
+function* autoIncrease() {
+    while (true) {
+        yield take(actionTypes.autoIncrease)
+        yield* stopTask();
+        task = yield fork(function* () {
+            while (true) {
+                yield delay(2000);
+                yield put(increase());
+            }
+        })
+    }
+}
+function* stopAutoIncrease() {
+    yield* stopTask();
+}
+
+export default function* () {
+    yield fork(autoIncrease);
+    yield takeEvery(actionTypes.stopAutoIncrease, stopAutoIncrease)
+    console.log("正在监听autoIncrease")
+}
+
+//4. 
+var isStop = false; //是否停止
+
+function* autoIncrease() {
+    isStop = false;
+    while (true) {
+        yield delay(2000);
+        if (isStop) {
+            break;
+        }
+        yield put(increase());
+    }
+}
+
+function stopAutoIncrease(){
+    isStop = true;
+}
+
+export default function* () {
+    yield takeLatest(actionTypes.autoIncrease, autoIncrease);
+    yield takeLatest(actionTypes.stopAutoIncrease, stopAutoIncrease);
+    console.log("正在监听autoIncrease")
+}
+
+//5
+function* autoTask() {
+    while (true) {
+        yield take(actionTypes.autoIncrease); //只监听autoIncrease
+        yield race({
+            autoIncrease: call(function* () {
+                while (true) {
+                    yield delay(2000);
+                    yield put(increase());
+                }
+            }),
+            cancel: take(actionTypes.stopAutoIncrease)
+        })
+    }
+}
 
 
+```
 
 
 
