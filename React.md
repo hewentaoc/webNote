@@ -312,6 +312,10 @@ React中的哲学：数据属于谁，谁才有权力改动
 - setState，它对状态的改变，**可能**是异步的
 
 > **如果改变状态的代码处于某个HTML元素的事件中，则其是异步的，否则是同步**
+>
+> **setState 在生命周期函数和合成函数中都是异步更新**
+>
+> **setState 在 setTimeout、原生事件和 async 函数中都是同步更新**
 
 - 如果遇到某个事件中，需要同步调用多次，需要使用函数的方式得到最新状态
 
@@ -441,6 +445,7 @@ React官方认为，某个数据的来源必须是单一的
 **(单选和多选框需要设置checked)**
 
 <input type='text' value=123 /> 
+
 - 如果设置value的值,则其为受控组件,此时input中的值为只读的值
 
 <input type='text' defaultValue=123 /> 
@@ -1610,7 +1615,19 @@ react-router使用了第三方库：Path-to-RegExp，该库的作用是，将一
 
 - to
   - 字符串：跳转的目标地址
+  
   - 对象：
+    
+    ```js
+    {
+        pathname: "/b",
+        hash: "#abc",
+        search: "?a=1&b=2"
+    }   
+    ```
+    
+    
+    
     - pathname：url路径
     - search
     - hash
@@ -1627,9 +1644,23 @@ react-router使用了第三方库：Path-to-RegExp，该库的作用是，将一
 它具备的额外功能是：根据当前地址和链接地址，来决定该链接的样式
 
 - activeClassName: 匹配时使用的类名
+
+  > 修改类名
+  >
+  > ```react
+  > <NavLink activeClassName="selected" 
+  >     activeStyle={{
+  >       background:"#ccc"
+  >     }}
+  > </NavLink>   
+  > ```
+
 - activeStyle: 匹配时使用的内联样式
+
 - exact: 是否精确匹配
+
 - sensitive：匹配时是否区分大小写
+
 - strict：是否严格匹配最后一个斜杠
 
 ## Redirect
@@ -2116,8 +2147,40 @@ export default function thunk(store){
 ```
 
 - **redux-promise**
+如果action是一个promise，则会等待promise完成，将完成的结果作为action触发，如果action不是一个promise，则判断其payload是否是一个promise，如果是，等待promise完成，然后将得到的结果作为payload的值触发。
+```js
+import { isPlainObject, isString } from "lodash"
+import isPromise from "is-promise"
 
-  
+export default ({ dispatch }) => next => action => {
+    if (!isFSA(action)) {
+        //如果不是一个标准的action
+        //如果action是一个promise，则将其resolve的值dispatch，否则，不做任何处理，交给下一个中间件
+        return isPromise(action) ? action.then(dispatch) : next(action);
+    }
+    return isPromise(action.payload) ?
+        action.payload
+            .then(payload => dispatch({ ...action, payload }))
+            .catch(error => dispatch({ ...action, payload: error, error: true })) :
+        next(action)
+}
+
+/**
+ * 判断一个action是不是标准的flux的action
+ * @param {*} action 
+ */
+function isFSA(action) {
+    //action必须是一个平面对象 plain-object
+    //action.type必须是一个字符串
+    //action的属性不能包含其他非标准属性  标准属性["type", "payload", "error", "meta"]
+    return isPlainObject(action)
+        &&
+        isString(action.type)
+        &&
+        Object.keys(action).every(key => ["type", "payload", "error", "meta"].includes(key));
+}
+```
+
 ## 3. 利用**redux-saga**中间件进行副作用处理
 
 > 中文文档地址：https://redux-saga-in-chinese.js.org/
@@ -2363,7 +2426,35 @@ function* autoTask() {
 
 
 ```
+## 5. 手写redux-saga(后期补充学习)
 
+# 九．react-redux(数据与组件结合)
+
+
+## 1.react-redux
+
+- React: 组件化的UI界面处理方案
+- React-Router: 根据地址匹配路由，最终渲染不同的组件
+- Redux：处理数据以及数据变化的方案（主要用于处理共享数据）
+
+> 如果一个组件，仅用于渲染一个UI界面，而没有状态（通常是一个函数组件），该组件叫做**展示组件**
+> 如果一个组件，仅用于提供数据，没有任何属于自己的UI界面，则该组件叫做**容器组件**，容器组件纯粹是为了给其他组件提供数据。
+
+**react-redux库：链接redux和react**
+
+- Provider组件：没有任何UI界面，该组件的作用，是将redux的仓库放到一个上下文中。
+- connect：高阶组件，用于链接仓库和组件的
+  - 细节一：如果对返回的容器组件加上额外的属性，则这些属性会直接传递到展示组件
+  - 第一个参数：mapStateToProps: 
+    - 参数1：整个仓库的状态
+    - 参数2：使用者传递的属性对象
+  - 第二个参数：
+    - 情况1：传递一个函数 mapDispatchToProps
+      - 参数1：dispatch函数
+      - 参数2：使用者传递的属性对象
+      - 函数返回的对象会作为属性传递到展示组件中（作为事件处理函数存在）
+    - 情况2：传递一个对象，对象的每个属性是一个action创建函数，当事件触发时，会自动的dispatch函数返回的action
+  - 细节二：如果不传递第二个参数，通过connect连接的组件，会自动得到一个属性：dispatch，使得组件有能力自行触发action，但是，不推荐这样做。
 
 
 
