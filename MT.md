@@ -5,6 +5,20 @@
 - import导入的是值的引用**(原文件发生变化，引用的文件也会发生变化)**
 
 - require导入的值的拷贝**(一旦输出一个值，模块内部的变化就影响不到这个值)**
+
+- AMD依赖前置
+
+  > ```js
+  > define(['./package/lib.js'], function(lib) {
+  >       function say(){
+  >            lib.log('this is fn');
+  >        }
+  >        return {
+  >            say:say
+  >        }; 
+  > ```
+  >
+  > 
 #### 2. import()引入进行动态加载,可以实现按需加载
 
 - 动态的 import() 提供一个基于 Promise 的 API

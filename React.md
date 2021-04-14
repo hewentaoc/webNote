@@ -489,6 +489,7 @@ React官方认为，某个数据的来源必须是单一的
 static propTypes = {
    a:PropTypes.number.isRequired, **代表a属性是必填的并且必须是数字类型**
 }
+
 > 
 ## 先进行属性混合,再进行属性类型检查
 
@@ -1249,7 +1250,30 @@ Effect Hook：用于在函数组件中处理副作用
 - 例如: useRef()值的改变就不会重新渲染组件
 
 5. 副作用函数中，如果使用了函数上下文中的变量，则由于闭包的影响，会导致副作用函数中变量不会实时变化。
+
 6. 副作用函数在每次注册时，会覆盖掉之前的副作用函数，因此，尽量保持副作用函数稳定，否则控制起来会比较复杂。
+
+   ```js
+   //这种写法在副作用函数中会形成闭包，此时副作用函数中拿到的n一直是首次执行得到的n:10
+   //所以计时器执行得到的结果都是9
+   const [n, setN] = useState(10)
+       useEffect(() => {
+           //仅挂载后运行
+           const timer = setInterval(() => {
+               const newN = n - 1;
+               console.log(newN)
+               setN(newN);
+               if (newN === 0) {
+                   clearInterval(timer);
+               }
+           }, 1000)
+           return () => { //函数卸载时运行
+               clearInterval(timer);
+           }
+       }, [])
+   ```
+
+   
 
 
 ## 4.自定义Hook
@@ -1566,7 +1590,7 @@ location对象中记录了当前地址的相关信息
 该对象中保存了，路由匹配的相关信息
 
 - isExact：事实上，当前的路径和路由配置的路径是否是精确匹配的
-- params：获取路径规则中对应的数据
+- params：获取路径规则中对应的数据f
 
 
 实际上，在书写Route组件的path属性时，可以书写一个```string pattern```（字符串正则）
@@ -2261,7 +2285,7 @@ function* listenAction(){
     let value = yield call(getAllStudents,1,2,3);//使用call进行异步数据请求，后面是参数
     console.log(333,value)
  }
-function* listenAction(){
+function* (){
     let value = yield apply(null,getAllStudents,[1,2,3]);//使用apply进行异步数据请求，数组是参数
     console.log(777,value)
 }
@@ -2457,6 +2481,184 @@ function* autoTask() {
   - 细节二：如果不传递第二个参数，通过connect连接的组件，会自动得到一个属性：dispatch，使得组件有能力自行触发action，但是，不推荐这样做。
 
 
+## 2.react-redux 其他api
+
+> 详情参考：https://react-redux.js.org/api
+
+## connect
+
+- mergeProps: 一个函数
+  - 参数1：stateProps，该参数的值来自于mapStateToProps返回的值
+  - 参数2：dispatchProps，该参数的值来自于mapDispatchToProps返回的值
+  - 参数3：ownProps，来自于组件使用者传递的属性
+  - 返回值：一个对象，该对象的属性最终会被传递到包装的组件中。
+- options：配置对象
+  
+## connectAdvanced
+
+该函数和connect一样，也是用于连接React组件和Redux仓库的，只不过它的配置比connect少一些
+
+该函数需要传递两个参数：
+
+- selectorFactory
+  - 参数1：dispatch
+  - 参数2：factoryOptions，配置
+  - 返回：函数
+    - 参数1：state
+    - 参数2：ownProps
+    - 返回的是一个对象：该对象的属性最终，会成为包装的组件的属性
+- connectOptions
+
+## createProvider
+
+createProvider(字符串key)：通过一个唯一的key值创建一个Provider组件。
+
+```js
+var Provider1 = createProvider("p1");
+var Provider2 = createProvider("p2");
+```
+
+## 3.redux和router的结合（connected-react-router）
+课前知识
+
+> 1. chrome插件：redux-devtools
+> 2. 使用npm安装第三方库：redux-devtools-extension#
+
+## redux和router的结合（connected-react-router）
+
+用于将redux和react-router进行结合
+
+本质上，router中的某些数据可能会跟数据仓库中的数据进行联动
+
+该组件会将下面的路由数据和仓库保持同步
+
+1. action：它不是redux的action，它表示当前路由跳转的方式（PUSH、POP、REPLACE）
+2. location：它记录了当前的地址信息
 
 
+该库中的内容：
 
+## connectRouter
+
+这是一个函数，调用它，会返回一个用于管理仓库中路由信息的reducer，该函数需要传递一个参数，参数是一个history对象。该对象，可以使用第三方库history得到。
+
+## routerMiddleware
+
+该函数会返回一个redux中间件，用于拦截一些特殊的action
+
+## ConnectedRouter
+
+这是一个组件，用于向上下文提供一个history对象和其他的路由信息（与react-router提供的信息一致）
+
+之所以需要新制作一个组件，是因为该库必须保证整个过程使用的是同一个history对象
+
+## 一些action创建函数
+
+- push
+- replace
+
+```js
+import rootSaga from "./saga"
+import { composeWithDevTools } from "redux-devtools-extension"
+import { routerMiddleware } from "connected-react-router"
+import history from "./history"
+const routerMid = routerMiddleware(history)
+const sagaMid = createSagaMiddleware(); //创建一个saga的中间件
+const store = createStore(reducer,
+    composeWithDevTools(applyMiddleware(routerMid, sagaMid, logger))
+)
+```
+
+
+# 十．dva
+
+##  dva
+
+> 官方网站：https://dvajs.com
+> dva不仅仅是一个第三方库，更是一个框架，它主要整合了redux的相关内容，让我们处理数据更加容易，实际上，dva依赖了很多：react、react-router、redux、redux-saga、react-redux、connected-react-router等。
+
+![](assets/2019-09-06-18-39-36.png)
+
+## dva的使用
+
+1. dva默认导出一个函数，通过调用该函数，可以得到一个dva对象
+   
+2. dva对象.router：路由方法，传入一个函数，该函数返回一个React节点，将来，应用程序启动后，会自动渲染该节点。
+
+3. dva对象.start: 该方法用于启动dva应用程序，可以认为启动的就是react程序，该函数传入一个选择器，用于选中页面中的某个dom元素，react会将内容渲染到该元素内部。
+
+4. dva对象.model: 该方法用于定义一个模型，该模型可以理解为redux的action、reducer、redux-saga副作用处理的整合，整合成一个对象，将该对象传入model方法即可。
+   1. namespace：命名空间，该属性是一个字符串，字符串的值，会被作为仓库中的属性保存
+   2. state：该模型的默认状态
+   3. reducers: 该属性配置为一个对象，对象中的每个方法就是一个reducer，dva约定，方法的名字，就是匹配的action类型
+   4. effects: 处理副作用，底层是使用redux-saga实现的，该属性配置为一个对象，对象中的每隔方法均处理一个副作用，方法的名字，就是匹配的action类型。
+      1. 函数的参数1：action
+      2. 参数2：封装好的saga/effects对象
+   5. subscriptions：配置为一个对象，该对象中可以写任意数量任意名称的属性，每个属性是一个函数，这些函数会在模型加入到仓库中后立即运行。
+   
+   ```js
+   export default {
+       namespace: "counter",
+       state: 0,
+       reducers: {
+           increase(state) {
+               return state + 1;
+           },
+           decrease(state) {
+               return state - 1;
+           },
+           add(state, { payload }) {
+               return state + payload;
+           }
+       },
+       effects: {
+           *asyncIncrease(action, { call, put }) {
+               yield call(delay, 1000);
+               yield put({ type: "increase" })
+           },
+           *asyncDecrease(action, { call, put }) {
+               yield call(delay, 1000);
+               yield put({ type: "decrease" })
+           }
+       },
+       subscriptions: {
+           resizeIncrease({ dispatch }) {
+               //订阅窗口尺寸变化，每次变化让数字增加
+               window.onresize = () => {
+                   dispatch({ type: "increase" })
+               }
+           },
+           resizeDecrease({ dispatch, history }) {
+               history.listen(() => {
+                   dispatch({ type: "decrease" })
+               })
+           }
+       }
+   }
+   
+   function delay(duration) {
+       return new Promise(resolve => {
+           setTimeout(() => {
+               resolve()
+           }, duration);
+       })
+   }
+   ```
+   
+5. 在dva中同步路由到仓库
+   1. 在调用dva函数时，配置history对象
+   2. 使用ConnectedRouter提供路由上下文
+
+
+6. 配置：
+   1. history：同步到仓库的history对象
+   2. initialState：创建redux仓库时，使用的默认状态
+   3. onError: 当仓库的运行发生错误的时候，运行的函数
+   4. onAction: 可以配置redux中间件
+      1. 传入一个中间件对象
+      2. 传入一个中间件数组
+   5. onStateChange: 当仓库中的状态发生变化时运行的函数
+   6. onReducer：对模型中的reducer的进一步封装
+   7. onEffect：类似于对模型中的effect的进一步封装
+   8. extraReducers：用于配置额外的reducer，它是一个对象，对象的每一个属性是一个方法，每个方法就是一个需要合并的reducer，方法名即属性名。
+   9. extraEnhancers: 它是用于封装createStore函数的，dva会将原来的仓库创建函数作为参数传递，返回一个新的用于创建仓库的函数。函数必须放置到数组中。
