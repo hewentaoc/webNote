@@ -493,11 +493,134 @@ demo.toString(8);
 
 
 
-### Event Loop
+## Event Loop
 
 为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
 
+> 笔记是用markdown写的，需要用支持markdown预览的软件打开，比如typora：https://www.typora.io/
 
+### 线程和异步
+
+### 进程
+
+当一个应用程序运行时，需要使用内存和CPU资源，这些资源需要向操作系统申请。
+
+操作系统以进程的方式来分配这些资源，一个进程就代表着一块独立于其他进程的内存空间。
+
+一个应用程序要运行，必须至少有一个进程启动。
+
+进程的最大特点是**独立**，一个进程不能随意的访问其他进程的资源。这就保证了多个程序在操作系统上运行互不干扰。
+
+<img src="http://mdrs.yuanjin.tech/img/20200925114500.png" alt="image-20200925114500712" style="zoom:50%;" />
+
+### 线程
+
+任何一个进程在启动的时候，操作系统都会给其分配一个线程，应用程序的入口函数在主线程中运行。
+
+在应用程序的运行过程中，可能有多个任务需要**同时**执行，于是可以向操作系统申请分配更多的线程来执行不同的任务。
+
+比如，浏览器启动后，会开启多个线程来处理不同的事情。
+
+<img src="http://mdrs.yuanjin.tech/img/20200925150811.png" alt="image-20200925150811708" style="zoom:50%;" />
+
+和进程不一样的是，线程之间的资源不是隔离的，它们可以共享数据，并且线程可以被调度。
+
+比如浏览器中的执行线程和GUI线程就是被调度为互斥的，当GUI线程执行渲染时，执行线程会被阻塞，反之亦然。所以在下面的代码中你是看不到元素内容被改变的：
+
+```html
+<h1 id="title">Monica</h1>
+<button onclick="test()">click me</button>
+<script>
+  function test() {
+    title.innerHTML = "莫妮卡";
+    while (true) {}
+  }
+</script>
+```
+
+**我们所说的「JS中是单线程」的语言，是指在宿主环境中，执行JS代码的线程只有一个**
+
+### 异步
+
+单线程的主要优势是不需要考虑线程调度，降低了程序的复杂性
+
+但在单线程中如果要处理需要等待的任务时，就必须要考虑阻塞的问题。
+
+考虑下面的伪代码：
+
+```js
+var dom = document.getElementById("name"); // 获取某个dom元素
+var name = syncConnect("http://server/getname"); // 以同步的方式向服务器获取名字
+dom.innerHTML = name;
+otherTask(); // 其他无关任务
+```
+
+<img src="http://mdrs.yuanjin.tech/img/20200925154832.png" alt="image-20200925154832790" style="zoom:50%;" />
+
+因此，JS引入异步来处理该问题
+
+```js
+var dom = document.getElementById("name"); // 获取某个dom元素
+asyncConnect("http://server/getname", function callback(result){ //以异步的方式向服务器获取名字
+  dom.innerHTML = result;
+}); 
+otherTask(); // 其他无关任务
+```
+
+<img src="http://mdrs.yuanjin.tech/img/20200925155145.png" alt="image-20200925155145567" style="zoom:50%;" />
+
+### 执行栈
+
+
+
+### 事件循环
+
+
+### 问题
+
+1. 怎样理解JS的异步？
+
+   ```
+   JS是一个单线程的语言，意味着宿主仅为其分配了一个执行线程。
+   而在实际的开发中，JS有时需要执行一些耗时的操作，比如等待一个DOM事件发生、等待网络通信完成、等待计时结束等等。如果在执行线程上去等待，就浪费线程的宝贵执行时间，阻塞后续操作。更可怕的是，由于浏览器的GUI线程和JS执行线程是互斥的，这就导致浏览器界面会因为JS的等待处于卡死状态。
+   因此，JS通过异步来解决这个问题，当需要等待的时候，通知宿主的其他线程去做处理，执行线程则继续后续执行。当其他线程完成处理后，会发出通知，此时执行线程转而去执行事先定义好的回调函数即可。
+   异步的方式充分了解放了执行线程，让执行线程可以毫无阻塞的运行，也就避免了浏览器宿主因为等待操作完成出现的卡死现象。
+   ```
+
+2. 下面的哪个函数执行会导致报错？如果报错，会报什么错误？为什么会出现这种情况？
+
+   ```js
+   function A(){
+     A();
+   }
+   
+   function B(){
+     var n = 0;
+     while(n >= 0){
+       n++;
+     }
+   }
+   ```
+
+3. 下面的代码输出结果是什么？
+
+   ```js
+   setTimeout(function func1() {
+     console.log(1)
+     a();
+   }, 0)
+   
+   function a() {
+     setTimeout(function func2() {
+       console.log(2)
+     }, 0)
+     console.log(3)
+   }
+   
+   a();
+   
+   console.log(4)
+   ```
 
 ### JavaScript是多线程吗
 
