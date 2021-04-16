@@ -80,7 +80,7 @@ let obj = {
         sing:'song'
     }
 }
-
+//错误的方法
 let proxyObj = {}
 function proxyMix(obj){
     for (const key in obj) {
@@ -143,7 +143,142 @@ function proxyObjFunc(key,obj,element){
 proxyMix(obj);
 ```
 
+```js
+/**
+* 1. Object.defineProperty - 1
+*/
 
+let obj = {
+    name:'hwt',
+    age:13,
+    test:[1,2,3],
+    love:{
+        sing:'song'
+    }
+}
+
+function proxyMix(obj){
+    let proxyObj = {}
+    if(obj instanceof Array){
+       proxyObj = [];
+       for(let i = 0 ; i < obj.length ; i++){
+           proxyObj[i] = proxyObjFunc(obj[i]);
+       }
+       proxyObj = proxyArrFunc(obj)
+    }else if(typeof obj == 'object'){
+        proxyObj = proxyObjFunc(obj);
+    }
+    return proxyObj;
+}
+function proxyObjFunc(obj){
+    let proxyObj = {}
+    for (const key in obj) {
+        Object.defineProperty(proxyObj,key,{
+            set(val){
+                console.log('set')
+                obj[key] = val;
+            },
+            get(){
+                console.log('get');
+                return obj[key];
+            }
+        })
+        if(typeof obj[key] == 'object'){
+            proxyObj[key] = proxyMix(obj[key]);
+        }
+    }
+    return proxyObj;
+}
+let protoArr = Array.prototype;
+function proxyArrFunc(arr){
+    let prototypeObj = {
+        push:function(){},
+        pop(){},
+        shift(){},
+        unshift(){}
+    }
+    Object.defineProperty(prototypeObj,'push',{
+        value:(function(){
+            return function(...arg){
+                console.log('push','数组监控')
+                protoArr['push'].apply(this,arg);
+                return this.length;
+            }
+        }())
+    })
+    arr.__proto__ = prototypeObj;
+    return arr;
+}
+
+let proxyObj = proxyMix(obj);
+```
+
+```js
+
+/**
+  2. Object.defineProperty - 2
+*/
+function observer(obj) {
+    if(typeof obj != 'object'){
+        return;
+    }
+    Object.keys(obj).forEach((item)=>{
+        let value = obj[item];
+        observer(obj[item])//递归监听属性
+        Object.defineProperty(obj,item,{
+            get(){
+                console.log('get '+ item + ':',value)
+                return value;
+            },
+            set(val){
+                observer(val);//对赋值为对象的值进行重新监听
+                console.log('set '+ item + ':',value)
+                value = val;
+            }
+        })
+    })
+}
+observer(obj)
+```
+
+```js
+
+/**
+  3. Object.defineProperty - 3
+*/
+function observer(obj){
+    if(typeof obj != 'object'){
+        return obj;
+    }
+    
+    let result = new Proxy(obj,{
+        set(target,key,value){
+            console.log('set',key)
+            observer(value)
+            Reflect.set(target,key,value);
+        },
+        get(target,key){
+          console.log('get',key)
+          let value = observer(Reflect.get(target,key));
+          return value;
+        }
+    })
+    return result;
+}
+
+```
+
+
+
+为什么proxy可以get的时候，再进行深度遍历，而Object.defineProperty不可以?　
+
+> **proxy有传递的参数,可以直接得到此时的target,key,从而得到value**
+>
+> ***而Object.defineProperty*****中的get事件不具备实施得到value的功能**
+>
+> **proxy是代理到别的对象上,不会出现死循环**
+>
+> **Object.defineProperty如果代理到自己的身上会出现死循环**
 
 ## 4. 使用Proxy,Reflect进行对象或者数组的代理
 
@@ -347,8 +482,23 @@ ES6新增了一个特殊的函数，叫做生成器函数，只要在函数名�
 
 
 
+### 进制的转换
+
+```js
+//将16进制转换为10进制，将别的进制转换为10进制
+var num=parseInt("a",16);  //num=10;
+//将10进制转换为对应的进制，10进制的数转换为8进制
+demo.toString(8);
+```
 
 
 
+### Event Loop
+
+为了利用多核CPU的计算能力，HTML5提出Web Worker标准，允许JavaScript脚本创建多个线程，但是子线程完全受主线程控制，且不得操作DOM。所以，这个新标准并没有改变JavaScript单线程的本质。
 
 
+
+### JavaScript是多线程吗
+
+浏览器是多线程，浏览器中有个执行线程用于执行JS
