@@ -16,11 +16,53 @@ vue create vue-app
 
 Vue.use() 方法至少传入一个参数，该参数类型必须是 Object 或 Function，如果是 Object 那么这个 Object 需要定义一个 install 方法，如果是 Function 那么这个函数就被当做 install 方法。在 Vue.use() 执行时 install 会默认执行，当 install 执行时第一个参数就是 Vue，其他参数是 Vue.use() 执行时传入的其他参数。
 
-
+**vue模板解析是用正则匹配的吗**
 
 ## 4. 美团源码分析
 
 https://tech.meituan.com/2017/04/27/vuex-code-analysis.html
+
+## 5. Vue源码
+
+http://caibaojian.com/vue-design/art/
+
+```js
+//只可读，不可写
+Object.defineProperty(res,'name',{
+    get(){
+        console.log('get')
+        return obj.name;
+    }
+})
+```
+
+
+
+$listeners,$attrs,slot
+
+/home/hwt/桌面/Learn/Demo/Vue/vue-demo
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 ------------
 

@@ -1765,6 +1765,98 @@ CSSTransition：用于为内部的DOM元素添加类样式，通过in属性决�
 
 # 六．Lesson６－ React Router源码
 
+## 1. react-router-dom(用于提供router的history对象)
+
+#### 	通过Browser、Hash来创建history对象，将history对象传给核心库的router来处理
+
+####     核心: history对象     
+
+####     首先默认使用history Api,实现history.back,forward,go  
+
+#### 实现push,replace使用history.pushState({},' ', path)
+
+#### 最重要的是实现listen: (只监听replace,push发生的变化)
+
+####    通过一个类来实现的listen函数，添加监听到函数到一个数组中
+
+####    触发监听的时候，执行类中保存数组的函数
+
+#### 实现阻塞事件，只有push,replace等跳转才能阻塞，注册block事件后，一个参数用来保存block传进来的参数，
+
+```js
+ this.getUserConfirmation(msg, function(flag){//flag == true,进行页面跳转
+            if(flag){
+                callback();
+            }
+        })
+```
+
+
+
+```js
+         blockManage.triggerBlock(location,action,()=>{//触发页面阻塞事件的监听
+            if(action == 'PUSH'){
+                window.history.pushState({
+                    state:pathInfo.state,
+                    key:Math.random().toString(36).substr(2,5)
+                },'',pathInfo.path)
+            }
+            if(action == 'REPLACE'){
+                window.history.replaceState({
+                    state:pathInfo.state,
+                    key:Math.random().toString(36).substr(2,5)
+                },'',pathInfo.path)
+            }
+            listenrManage.triggerListener(location,action)
+            history.location = location;
+            history.action = action;
+        })
+        this.props.history.listen(function(location,action){
+            console.log(location,action)
+        })
+        this.props.history.block(()=>{
+            return '111'
+        })
+```
+
+，
+
+## 2. react-router (实现路由的核心库)
+
+####  	router: 在router中会创建一个执行期上下文用来保存history信息
+
+   ```js
+let ctxObj = {
+    history:this.props.history,
+    location:this.state.location,
+    match:matchPath('/',window.location.pathname,{})
+}
+   ```
+
+#### 匹配路径的核心方法：matchPatch， 使用的核心库 pathToRegexp，路径转化为正则表达式
+
+Route组件在通过mathPatch匹配到路径的时候，就会将该组件返回
+
+#### NavLink根据matchPath()的返回结果，来给匹配到路径的NavLink标签加上类名
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 # 七．Lesson７－ Redux
 
 ## 1. Redux核心概念

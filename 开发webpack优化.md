@@ -16,6 +16,10 @@
 
 ## 1. 引入cahe-loader(一期)
 
+###   问题：webpack中cache-loader中package改变会更新吗
+
+  https://segmentfault.com/a/1190000021768648
+
 - ## 缓存loader的结果
 
   **我们可以基于一种假设：如果某个文件内容不变，经过相同的loader解析后，解析后的结果也不变**

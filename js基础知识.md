@@ -252,15 +252,16 @@ function observer(obj){
     }
     
     let result = new Proxy(obj,{
-        set(target,key,value){
-            console.log('set',key)
-            observer(value)
-            Reflect.set(target,key,value);
-        },
         get(target,key){
           console.log('get',key)
           let value = observer(Reflect.get(target,key));
           return value;
+        },
+        set(target,key,value){
+            console.log('set',key)
+            let value = observer(value)//是否需要返回值给value
+            Reflect.set(target,key,value);
+            trigger(target,key)
         }
     })
     return result;
@@ -625,3 +626,11 @@ otherTask(); // 其他无关任务
 ### JavaScript是多线程吗
 
 浏览器是多线程，浏览器中有个执行线程用于执行JS
+
+
+
+
+
+###  super
+
+在构造函数中使用时，`super`关键字将单独出现，并且必须在使用`this`关键字之前使用。`super`关键字也可以用来调用父对象上的函数。
