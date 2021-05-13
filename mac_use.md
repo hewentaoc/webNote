@@ -20,3 +20,8 @@ sudo npm install -g nrm
 
 https://qizhanming.com/blog/2020/07/29/how-to-install-node-using-nvm-on-macos-with-brew
 
+### 6. ssh
+
+![](/home/hwt/桌面/Knowledge/Note/assets/ssh.png)
+
+![](/home/hwt/桌面/Knowledge/Note/assets/Bdix6H.png)

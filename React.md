@@ -110,7 +110,10 @@ JS的扩展语法，需要使用babel进行转义。
  -  "javascript": "javascriptreact" //让js支持jsx的语法
 
 > (2) VSCode插件安装
- -  ESLint：代码风格检查
+
+
+
+>  -  ESLint：代码风格检查
  -  ES7 React/Redux/GraphQL/React-Native snippets：快速代码编写
 
 > (3) Chrome插件安装

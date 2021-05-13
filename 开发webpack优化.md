@@ -117,3 +117,31 @@ webpack之所以选择ES6的模块导入语句，是因为ES6模块有以下特�
 3. webpack优化(cache-loader,import, css-tree-shaking)
 4. px2pw适配(loader) , margin-top: 60px/*keep*/，相当于注释，会自己删掉
 5. 懒加载(data-src)
+
+
+
+
+
+## 总结
+
+### 1. 页面数据代理
+
+```js
+HOST = '/apm/'
+proxy: {
+      '/apm': {
+        // https://app.market.xiaomi.com/apm/
+        target: 'https://app.market.xiaomi.com',
+        changeOrigin: true
+      }
+}
+```
+
+
+
+
+
+
+
+
+
