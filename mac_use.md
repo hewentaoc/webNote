@@ -1,3 +1,23 @@
+## 帮助中心
+
+https://help.apple.com/macos/big-sur/mac-basics/?lang=zh-hans&cases=kIFAGHvXTAepRptQXiXe5w,N0bfKOvERSiAp06mHOcgOQ&notification=0#notifications
+
+
+
+### git 下载
+
+https://brew.sh/index_zh-cn 
+
+### 怎么选中大量的代码文本进行删除 ？
+
+下载Homebrew后好像会默认安装git
+
+### 反撤销
+
+command + shift + z
+
+
+
 ### 1. 打开设置的快捷键 
 
 command + ,
@@ -22,6 +42,25 @@ https://qizhanming.com/blog/2020/07/29/how-to-install-node-using-nvm-on-macos-wi
 
 ### 6. ssh
 
-![](/home/hwt/桌面/Knowledge/Note/assets/ssh.png)
+![](assets/ssh.png)
 
-![](/home/hwt/桌面/Knowledge/Note/assets/Bdix6H.png)
+![](assets/Bdix6H.png)
+
+### 7. 搜索mac应用和文件
+
+command + 空格
+
+### 8. 插入图片的快捷键
+
+control + command + i
+
+### 显示md文件源码的快捷键
+
+command + /
+
+### 9. Visual code 默认字体
+
+'Consolas', 'monospace', monospace, 'Droid Sans Fallback'
+
+'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'
+
