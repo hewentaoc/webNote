@@ -85,7 +85,6 @@ React是由**Facebook**研发的、用于**解决UI复杂度**的开源**JavaScr
     let h1 = React.createElement('h1',{
         class:'dom'
     },'ssss')
-    
 ### JSX
 
 JS的扩展语法，需要使用babel进行转义。
@@ -195,7 +194,6 @@ JS的扩展语法，需要使用babel进行转义。
 
 
 1. 函数组件
-   
 
 返回一个React元素
 
@@ -579,7 +577,7 @@ ref不再推荐使用字符串赋值，字符串赋值的方式将来可能会�
 
 - 通过 React.createRef 函数创建
 - 也可以直接
-this.txt = {
+  this.txt = {
        current:null,
    }
 > 在执行render函数的时候给对象重新赋值 
@@ -591,7 +589,7 @@ this.txt = {
 
 - <input type='text' ref={(el)=>{
    this.txt = el;
-}}>
+   }}>
 
 - this.txt 得到Dom元素
 
@@ -782,7 +780,6 @@ PureComponent是一个组件,如果某个组件继承自该组价,
 -  它是一个高级组件(传递一个函数作为参数),返回的值即为一个纯组件
 
    let PureFunc = React.memo(Task);
-   
 ## 8.render props(传递属性给子组件)
 
 有时候，某些组件的各种功能及其处理逻辑几乎完全相同，只是显示的界面不一样，建议下面的方式认选其一来解决重复代码的问题（横切关注点）
@@ -1295,7 +1292,6 @@ Effect Hook：useEffect
 2. 很多组件都需要在第一次加载完成后，启动一个计时器，然后在组件销毁时卸载
 
 > 使用Hook的时候，如果没有严格按照Hook的规则进行，eslint的一个插件（eslint-plugin-react-hooks）会报出警告
-> 
 
 ## 5.Reducer Hook
 
@@ -1504,12 +1500,12 @@ History表示浏览器的历史记录，它使用栈的方式存储。
 
 1. history.length：获取栈中数据量
 2. history.pushState：向当前历史记录栈中加入一条新的记录
-**可以无刷新的改变当前页面的地址**
+   **可以无刷新的改变当前页面的地址**
    1. 参数1：附加的数据，自定义的数据，可以是任何类型
    2. 参数2：页面标题，目前大部分浏览器不支持
    3. 参数3：新的地址
 3. history.replaceState：将当前指针指向的历史记录，替换为某个记录
-**可以无刷新的替换当前页面的地址**
+   **可以无刷新的替换当前页面的地址**
    1. 参数1：附加的数据，自定义的数据，可以是任何类型
    2. 参数2：页面标题，目前大部分浏览器不支持
    3. 参数3：新的地址
@@ -2588,7 +2584,6 @@ function* autoTask() {
   - 参数3：ownProps，来自于组件使用者传递的属性
   - 返回值：一个对象，该对象的属性最终会被传递到包装的组件中。
 - options：配置对象
-  
 ## connectAdvanced
 
 该函数和connect一样，也是用于连接React组件和Redux仓库的，只不过它的配置比connect少一些
