@@ -183,7 +183,7 @@ ssh root@58.87.117.176
 6.  在Dom元素重新渲染之后  就会触发$nextTick中的回调函数
  this.$nextTick(() => {
 
- })
+​       })
 
 7. transform 和　fixed不能连起来用
 8. css动画、js动画
