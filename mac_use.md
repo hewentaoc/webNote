@@ -64,3 +64,4 @@ command + /
 
 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'
 
+#### 10. 隐藏所有窗口 fn + f12
