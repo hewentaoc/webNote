@@ -2,7 +2,7 @@
 
 https://help.apple.com/macos/big-sur/mac-basics/?lang=zh-hans&cases=kIFAGHvXTAepRptQXiXe5w,N0bfKOvERSiAp06mHOcgOQ&notification=0#notifications
 
-
+Hevin
 
 ### git 下载
 
@@ -65,3 +65,9 @@ command + /
 'Droid Sans Mono', 'monospace', monospace, 'Droid Sans Fallback'
 
 #### 10. 隐藏所有窗口 fn + f12
+
+
+
+#### 11. 查找文件
+
+Command + shift + g
