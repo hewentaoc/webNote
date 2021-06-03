@@ -57,6 +57,22 @@ let os = Symbol({
  console.log(Symbol.iterator,Symbol('Symbol.interator'));
 ```
 
+#### ES6 Class使用Symbol创建私有成员变量
+
+```js
+(function(){
+  let love = Symbol('love');
+  class User {
+    constructor(){
+      this[love] = 'sing';
+    }
+  }
+  window.User = User;
+}())
+let u = new User();
+console.log(u)
+```
+
 
 
 ## 3. 使用Object.defineProperty(obj,prop,{})进行对象或者数组的代理
@@ -634,3 +650,8 @@ otherTask(); // 其他无关任务
 ###  super
 
 在构造函数中使用时，`super`关键字将单独出现，并且必须在使用`this`关键字之前使用。`super`关键字也可以用来调用父对象上的函数。
+
+## Es6中访问器  
+
+https://zhuanlan.zhihu.com/p/71780882
+

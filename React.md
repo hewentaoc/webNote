@@ -92,7 +92,7 @@ JS的扩展语法，需要使用babel进行转义。
 ## 2. React脚手架
 
 ### 1.　使用yarn进行安装 react-learn工程
-> (1) yarn create react-app react-learn
+> (1) **yarn create react-app react-learn**
 
 ### 2.  React脚手架中中index.js怎么被index.html文件引用
 

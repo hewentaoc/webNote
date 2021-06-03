@@ -77,3 +77,4 @@ Command + shift + g
 - 同时按下`Shift+Control+Command+3`键会在剪贴板里获取整个屏幕的截图；
 - 而同时按下`Shift+Control+Command+4`键则能使你通过拖动鼠标来截取部分屏幕，并复制图片到剪贴板
 
+### 13. Visual studio code中快速查找文件 command + p
