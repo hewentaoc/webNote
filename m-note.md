@@ -12,6 +12,8 @@ NVM 　切换Node版本
 
 ​	nvm install stable
 
+
+
 NRM 　自由切换 npm 源（主要用来切换小米源）
 
 ​	nrm ls
@@ -19,6 +21,8 @@ NRM 　自由切换 npm 源（主要用来切换小米源）
 ​    nrm add mi http://
 
 ​    nrm use mi	
+
+​    nvm alias default 0.10.3. **指定某nvm默认版本**
 
 NPM　 包管理工具
 
@@ -153,7 +157,7 @@ ssh root@58.87.117.176
 ## 前端知识收集
 
 1.  如何获取对象的length ?
-    
+  
     var obj = {a:1,b:2,c:3};
     var len = Object.keys(obj).length;
 
@@ -174,8 +178,8 @@ ssh root@58.87.117.176
      document.body.scrollTop = 0;
 　 document.documentElement.scrollIntoView();
 　 console.log(document.documentElement.scrollTop,document.body.scrollTop,window.pageYOffset,7788)
-　 ```
-　 
+```
+
 5.   window.addEventListener('hashchange',function(){});
 当 一个窗口的 hash （URL 中 # 后面的部分）改变时就会触发 hashchange 事件（参见 location.hash）。
 
